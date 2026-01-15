@@ -1,0 +1,23 @@
+{
+  "name": "oh-my-opencode-lite",
+  "version": "0.1.0",
+  "description": "Minimal agent orchestration plugin for OpenCode",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target bun --format esm && tsc --emitDeclarationOnly",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "dev": "bun run build && opencode"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "^1.1.19",
+    "@opencode-ai/sdk": "^1.1.19",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "typescript": "^5.7.3"
+  }
+}
