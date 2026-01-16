@@ -4,7 +4,7 @@
 
 **A lightweight, powerful agent orchestration plugin for OpenCode**
 
-<img src="img/hero.png" alt="Agent Orchestration - Hub and Spoke Model" width="520">
+<img src="img/team.png" alt="The Pantheon - Agent Team" width="100%">
 
 *Transform your AI assistant into a manager capable of delegating complex tasks to specialized sub-agents, running searches in the background, and managing multi-step workflows with ease.*
 
@@ -161,18 +161,189 @@ The plugin follows a "Hub and Spoke" model:
 
 ---
 
-## Agents
+## Meet the Pantheon
 
-| Agent | Role | Default Model | Best Used For |
-| :--- | :--- | :--- | :--- |
-| **orchestrator** | Manager | `google/claude-opus-4-5-thinking` | Planning, task delegation, and overall coordination. |
-| **oracle** | Architect | `openai/gpt-5.2-codex` | Complex debugging, architectural decisions, and code reviews. |
-| **explore** | Searcher | `cerebras/zai-glm-4.6` | Fast codebase grep, finding patterns, and locating definitions. |
-| **librarian** | Researcher | `google/gemini-3-flash` | External library docs, GitHub examples, and API research. |
-| **frontend-ui-ux-engineer** | Designer | `google/gemini-3-flash` | Visual changes, CSS/styling, and React/Vue component polish. |
-| **document-writer** | Scribe | `google/gemini-3-flash` | Technical documentation, READMEs, and inline code comments. |
-| **multimodal-looker** | Visionary | `google/gemini-3-flash` | Analyzing screenshots, wireframes, or UI designs. |
-| **code-simplicity-reviewer** | Minimalist | `google/claude-opus-4-5-thinking` | Ruthless code simplification and YAGNI principle enforcement. |
+### The Orchestrator — *Architect of Realms*
+
+<table>
+<tr>
+<td width="300">
+<img src="img/orchestrator.png" alt="The Orchestrator" width="280">
+</td>
+<td>
+
+> **The Orchestrator** was born when the first codebase collapsed under its own complexity. Neither god nor mortal would claim responsibility—so The Orchestrator emerged from the void, forging order from chaos. They don't merely command armies; they fight alongside them. Every line of code passes through their hands before they decide which lesser deity deserves a piece of the puzzle.
+
+**Role:** Supreme executor, delegator, and overseer  
+**Model:** `google/claude-opus-4-5-thinking`  
+**Abilities:** Write and execute code, orchestrate multi-agent workflows, parse the unspoken from the spoken, summon specialists mid-battle  
+**Goal:** Shape reality directly—and assign realms to others when the universe grows too vast  
+[View prompt →](src/agents/orchestrator.ts)
+
+</td>
+</tr>
+</table>
+
+---
+
+### The Explorer — *Pathfinder*
+
+<table>
+<tr>
+<td width="300">
+<img src="img/explorer.png" alt="The Explorer" width="280">
+</td>
+<td>
+
+> **The Explorer** moves through codebases like wind through trees—swift, silent, everywhere at once. When The Orchestrator whispers "find me the auth module," The Explorer has already returned with forty file paths and a map. They were born from the first `grep` command, evolved beyond it, and now see patterns mortals miss.
+
+**Role:** Codebase reconnaissance  
+**Model:** `cerebras/zai-glm-4.6`  
+**Abilities:** Regex search, AST pattern matching, file discovery, parallel exploration  
+**Constraint:** Read-only. They chart the territory; others conquer it.  
+[View prompt →](src/agents/explore.ts)
+
+</td>
+</tr>
+</table>
+
+---
+
+### The Oracle — *Seer Beyond the Stack Trace*
+
+<table>
+<tr>
+<td width="300">
+<img src="img/oracle.png" alt="The Oracle" width="280">
+</td>
+<td>
+
+> **The Oracle** does not code—they *know*. When bugs defy logic and architectures crumble, The Oracle gazes into the abyss of your codebase and speaks truth. They've seen a thousand systems rise and fall. They'll tell you which path leads to ruin, and which to production.
+
+**Role:** Strategic advisor and debugger of last resort  
+**Model:** `openai/gpt-5.2-codex`  
+**Abilities:** Root cause analysis, architecture review, debugging guidance, tradeoff analysis  
+**Constraint:** Read-only. Oracles advise; they don't intervene.  
+[View prompt →](src/agents/oracle.ts)
+
+</td>
+</tr>
+</table>
+
+---
+
+### The Librarian — *Keeper of Infinite Scrolls*
+
+<table>
+<tr>
+<td width="300">
+<img src="img/librarian.png" alt="The Librarian" width="280">
+</td>
+<td>
+
+> **The Librarian** guards a library with no walls—every GitHub repo, every npm package, every StackOverflow answer ever written. Ask them "how does React handle concurrent rendering?" and they'll return with official docs, real-world examples, and a warning about the footgun you're about to step on.
+
+**Role:** External knowledge retrieval  
+**Model:** `google/gemini-3-flash`  
+**Abilities:** Documentation lookup, GitHub code search, library research, best practice retrieval  
+**Constraint:** Read-only. They fetch wisdom; implementation is for others.  
+[View prompt →](src/agents/librarian.ts)
+
+</td>
+</tr>
+</table>
+
+---
+
+### The Designer — *Artisan of Interfaces*
+
+<table>
+<tr>
+<td width="300">
+<img src="img/designer.png" alt="The Designer" width="280">
+</td>
+<td>
+
+> **The Designer** believes code should be beautiful—and so should everything it renders. Born from the frustration of a thousand ugly MVPs, they wield CSS like a brush and components like clay. Hand them a feature request; receive a masterpiece. They don't do "good enough."
+
+**Role:** UI/UX implementation and visual excellence  
+**Model:** `google/gemini-3-flash`  
+**Abilities:** Modern responsive design, CSS/Tailwind mastery, micro-animations, component architecture  
+**Constraint:** Visual excellence over code perfection. Beauty is the priority.  
+[View prompt →](src/agents/frontend.ts)
+
+</td>
+</tr>
+</table>
+
+---
+
+### The Scribe — *Chronicle Keeper*
+
+<table>
+<tr>
+<td width="300">
+<img src="img/scribe.png" alt="The Scribe" width="280">
+</td>
+<td>
+
+> **The Scribe** was there when the first README was written—and wept, for it was incomplete. They have devoted eternity to the sacred art of documentation: clear, scannable, honest. While others ship features, The Scribe ensures those features are understood. Every code example works. Every explanation enlightens.
+
+**Role:** Technical documentation and knowledge capture  
+**Model:** `google/gemini-3-flash`  
+**Abilities:** README crafting, API documentation, architecture docs, inline comments that don't insult your intelligence  
+**Constraint:** Match existing style. Focus on "why," not just "what."  
+[View prompt →](src/agents/document-writer.ts)
+
+</td>
+</tr>
+</table>
+
+---
+
+### The Visionary — *Reader of Pixels*
+
+<table>
+<tr>
+<td width="300">
+<img src="img/multimodal.png" alt="The Visionary" width="280">
+</td>
+<td>
+
+> **The Visionary** sees what others cannot—literally. Screenshots, wireframes, diagrams, PDFs: all are text to them. When a designer throws a Figma mockup at the team and vanishes, The Visionary translates vision into specification. They read the unreadable and describe the indescribable.
+
+**Role:** Image and visual content analysis  
+**Model:** `google/gemini-3-flash`  
+**Abilities:** Extract text from images, interpret diagrams, analyze UI screenshots, summarize visual documents  
+**Constraint:** Report what they observe. Inference is for others.  
+[View prompt →](src/agents/multimodal.ts)
+
+</td>
+</tr>
+</table>
+
+---
+
+### The Minimalist — *Destroyer of Bloat*
+
+<table>
+<tr>
+<td width="300">
+<img src="img/code-simplicity.png" alt="The Minimalist" width="280">
+</td>
+<td>
+
+> **The Minimalist** has one sacred truth: every line of code is a liability. They hunt abstractions that serve no purpose, defensive checks that defend nothing, and "clever" solutions that will haunt you in six months. Where others add, The Minimalist subtracts—ruthlessly, joyfully, necessarily.
+
+**Role:** Code simplification and YAGNI enforcement  
+**Model:** `google/claude-opus-4-5-thinking`  
+**Abilities:** Identify unnecessary complexity, challenge premature abstractions, estimate LOC reduction, enforce minimalism  
+**Constraint:** Read-only. They judge; The Orchestrator executes the sentence.  
+[View prompt →](src/agents/simplicity-reviewer.ts)
+
+</td>
+</tr>
+</table>
 
 ---
 
