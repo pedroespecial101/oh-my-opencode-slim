@@ -11,6 +11,15 @@ No installation needed! The script is part of the project.
 bun run src/cli/score-models.ts
 ```
 
+### See only YOUR active providers
+```bash
+# First check which providers you have
+opencode models --refresh --verbose | grep -E "^[a-z-]+/" | cut -d'/' -f1 | sort -u
+
+# Then filter by them (example: opencode, github-copilot, kiro)
+bun run src/cli/score-models.ts --providers=opencode,github-copilot,kiro
+```
+
 ### See models ranked for a specific role
 ```bash
 bun run src/cli/score-models.ts --role=oracle

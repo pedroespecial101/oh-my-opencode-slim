@@ -10,9 +10,19 @@
 - Role filtering support
 - External signal integration (Artificial Analysis + OpenRouter)
 - Comprehensive documentation (README.md, IMPLEMENTATION_PLAN.md, QUICK_START.md)
+- Debugging output for signal fetch status
+- Warning messages when API keys are missing
 
 ### Fixed
 - **macOS GUI Launch Issue**: Fixed `resolveOpenCodePath()` in `src/cli/system.ts` to prioritize CLI paths (Homebrew, system bins) over macOS app bundle paths. Previously, the script would launch the OpenCode GUI app instead of using the CLI when both were installed.
+- **External Boost Always Zero**: Identified and documented that the issue was environmental (`.env` file in wrong location), not a code bug. Added clear warnings and documentation to prevent confusion.
+
+### Documentation Added
+- `ENV_SETUP.md` - Detailed environment variable setup guide
+- `EXTERNAL_BOOST_FIX.md` - Technical analysis of external boost issue
+- `FINAL_STATUS.md` - Complete status and verification checklist
+- Updated `README.md` with .env file location warning
+- Added comments in code explaining external boost calculation
 
 ### Technical Details
 

@@ -2,7 +2,38 @@
 
 A standalone TypeScript script that mirrors the exact scoring logic the installer uses to rank and select models for each agent role.
 
-## Overview
+## Important: All Models vs Active Providers
+
+**By default, the script shows ALL models from the OpenCode catalog**, not just the ones you have configured/authorized.
+
+This is intentional - it lets you see how all available models would be scored, which is useful for:
+- Comparing models across providers
+- Deciding which providers to enable
+- Understanding the full scoring landscape
+
+### Filter by Active Providers Only
+
+To see only models from providers you have configured:
+
+```bash
+# First, check which providers you have active
+opencode models --refresh --verbose | grep -E "^[a-z-]+/" | cut -d'/' -f1 | sort -u
+
+# Then filter by those providers
+bun run src/cli/score-models.ts --providers=opencode,github-copilot,kiro
+```
+
+### Example
+
+```bash
+# Show all models (default)
+bun run src/cli/score-models.ts --role=oracle
+# Output: Found 249 models
+
+# Show only your active providers
+bun run src/cli/score-models.ts --role=oracle --providers=opencode,github-copilot
+# Output: Found 249 models, Filtered to 45 models from providers: opencode, github-copilot
+```
 
 This script provides visibility into how models are scored and ranked by the oh-my-opencode-slim plugin. It uses the same scoring engine (`rankModelsV1WithBreakdown`) that the installer uses internally, making it a perfect tool for:
 
@@ -144,6 +175,14 @@ External signals add bonuses based on:
 
 ### Optional API Keys
 
+**IMPORTANT: The .env file must be in the project root, not in subdirectories.**
+
+Bun only loads `.env` files from the project root directory. If you have API keys in `model-ranking-test-script/.env`, move them to the root:
+
+```bash
+mv model-ranking-test-script/.env .env
+```
+
 Set these to include external signals in scoring:
 
 ```bash
@@ -157,6 +196,8 @@ Or pass them inline:
 ARTIFICIAL_ANALYSIS_API_KEY=xxx OPENROUTER_API_KEY=yyy \
   bun run src/cli/score-models.ts
 ```
+
+See [ENV_SETUP.md](./ENV_SETUP.md) for detailed setup instructions.
 
 ### OpenCode Path
 
