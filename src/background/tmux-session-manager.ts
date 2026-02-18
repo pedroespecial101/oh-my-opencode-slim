@@ -50,7 +50,8 @@ export class TmuxSessionManager {
     const defaultPort = process.env.OPENCODE_PORT ?? '4096';
     this.serverUrl =
       ctx.serverUrl?.toString() ?? `http://localhost:${defaultPort}`;
-    this.enabled = tmuxConfig.enabled && isInsideTmux();
+    // Force enable if config says enabled (bypass isInsideTmux check)
+    this.enabled = tmuxConfig.enabled;
 
     log('[tmux-session-manager] initialized', {
       enabled: this.enabled,

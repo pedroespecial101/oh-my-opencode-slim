@@ -1,0 +1,74 @@
+# Model Ranking Results
+
+## Librarian Agent Rankings
+
+| Rank | Model | Total Score | Base Score | External Boost | Provider | Status |
+|------|-------|-------------|------------|----------------|----------|--------|
+| 1 | opencode/claude-opus-4-6 | 668.667 | 668.667 | 0 | opencode | active |
+| 2 | opencode/gemini-3-pro | 658.569 | 658.569 | 0 | opencode | active |
+| 3 | opencode/claude-sonnet-4-6 | 638.533 | 638.533 | 0 | opencode | active |
+| 4 | opencode/gemini-3-flash | 634.569 | 634.569 | 0 | opencode | active |
+| 5 | opencode/claude-sonnet-4 | 628.033 | 628.033 | 0 | opencode | active |
+| 6 | opencode/claude-sonnet-4-5 | 628.033 | 628.033 | 0 | opencode | active |
+| 7 | kiro/claude-opus-4-6-1m | 625.533 | 625.533 | 0 | kiro | active |
+| 8 | kiro/claude-opus-4-6-1m-thinking | 625.533 | 625.533 | 0 | kiro | active |
+| 9 | kiro/claude-sonnet-4-5-1m | 603.033 | 603.033 | 0 | kiro | active |
+| 10 | opencode/gpt-5.2 | 360.267 | 360.267 | 0 | opencode | active |
+| 11 | opencode/gpt-5.2-codex | 360.267 | 360.267 | 0 | opencode | active |
+| 12 | opencode/gpt-5.1-codex-mini | 359.267 | 359.267 | 0 | opencode | active |
+| 13 | opencode/gpt-5.1 | 355.267 | 355.267 | 0 | opencode | active |
+| 14 | opencode/gpt-5.1-codex | 355.267 | 355.267 | 0 | opencode | active |
+| 15 | opencode/gpt-5.1-codex-max | 355.267 | 355.267 | 0 | opencode | active |
+| 16 | opencode/gpt-5-nano | 354.267 | 354.267 | 0 | opencode | active |
+| 17 | opencode/gpt-5 | 350.267 | 350.267 | 0 | opencode | active |
+| 18 | opencode/gpt-5-codex | 350.267 | 350.267 | 0 | opencode | active |
+| 19 | opencode/kimi-k2.5 | 326.589 | 326.589 | 0 | opencode | active |
+| 20 | opencode/kimi-k2.5-free | 326.589 | 326.589 | 0 | opencode | active |
+| 21 | opencode/kimi-k2-thinking | 311.589 | 311.589 | 0 | opencode | active |
+| 22 | github-copilot/gpt-5.2-codex | 296.707 | 296.707 | 0 | github-copilot | active |
+| 23 | opencode/kimi-k2 | 284.589 | 284.589 | 0 | opencode | active |
+| 24 | opencode/glm-5 | 244.033 | 244.033 | 0 | opencode | active |
+| 25 | opencode/glm-5-free | 244.033 | 244.033 | 0 | opencode | active |
+| 26 | opencode/minimax-m2.1 | 239.633 | 239.633 | 0 | opencode | active |
+| 27 | opencode/minimax-m2.5 | 239.633 | 239.633 | 0 | opencode | active |
+| 28 | opencode/minimax-m2.5-free | 239.633 | 239.633 | 0 | opencode | active |
+| 29 | opencode/glm-4.7 | 238.783 | 238.783 | 0 | opencode | active |
+| 30 | opencode/glm-4.6 | 233.533 | 233.533 | 0 | opencode | active |
+| 31 | opencode/big-pickle | 232.267 | 232.267 | 0 | opencode | active |
+| 32 | opencode/claude-opus-4-5 | 229.283 | 229.283 | 0 | opencode | active |
+| 33 | opencode/claude-haiku-4-5 | 221.283 | 221.283 | 0 | opencode | active |
+| 34 | github-copilot/gpt-5.1-codex-mini | 220.827 | 220.827 | 0 | github-copilot | active |
+| 35 | github-copilot/gpt-5.1-codex | 216.827 | 216.827 | 0 | github-copilot | active |
+| 36 | github-copilot/gpt-5.1-codex-max | 216.827 | 216.827 | 0 | github-copilot | active |
+| 37 | opencode/claude-opus-4-1 | 214.967 | 214.967 | 0 | opencode | active |
+| 38 | kiro/claude-opus-4-6 | 209.533 | 209.533 | 0 | kiro | active |
+| 39 | kiro/claude-opus-4-6-thinking | 209.533 | 209.533 | 0 | kiro | active |
+| 40 | kiro/claude-opus-4-5 | 204.283 | 204.283 | 0 | kiro | active |
+| 41 | kiro/claude-opus-4-5-thinking | 204.283 | 204.283 | 0 | kiro | active |
+| 42 | kiro/qwen3-coder-480b | 201.133 | 201.133 | 0 | kiro | active |
+| 43 | github-copilot/gpt-5 | 199.827 | 199.827 | 0 | github-copilot | active |
+| 44 | kiro/claude-sonnet-4-5-thinking | 199.033 | 199.033 | 0 | kiro | active |
+| 45 | kiro/claude-haiku-4-5 | 196.283 | 196.283 | 0 | kiro | active |
+| 46 | github-copilot/gemini-3-pro-preview | 193.693 | 193.693 | 0 | github-copilot | active |
+| 47 | github-copilot/gpt-5.2 | 191.693 | 191.693 | 0 | github-copilot | active |
+| 48 | opencode/claude-3-5-haiku | 190.471 | 190.471 | 0 | opencode | active |
+| 49 | kiro/claude-sonnet-4-5 | 187.033 | 187.033 | 0 | kiro | active |
+| 50 | github-copilot/grok-code-fast-1 | 186.843 | 186.843 | 0 | github-copilot | active |
+| 51 | github-copilot/gpt-5.1 | 186.693 | 186.693 | 0 | github-copilot | active |
+| 52 | github-copilot/gpt-5-mini | 185.693 | 185.693 | 0 | github-copilot | active |
+| 53 | github-copilot/claude-opus-4.6 | 182.843 | 182.843 | 0 | github-copilot | active |
+| 54 | github-copilot/gemini-3-flash-preview | 169.693 | 169.693 | 0 | github-copilot | active |
+| 55 | github-copilot/claude-opus-4.5 | 168.527 | 168.527 | 0 | github-copilot | active |
+| 56 | github-copilot/claude-sonnet-4.6 | 167.027 | 167.027 | 0 | github-copilot | active |
+| 57 | github-copilot/claude-haiku-4.5 | 165.777 | 165.777 | 0 | github-copilot | active |
+| 58 | github-copilot/claude-sonnet-4.5 | 161.777 | 161.777 | 0 | github-copilot | active |
+| 59 | github-copilot/claude-sonnet-4 | 151.993 | 151.993 | 0 | github-copilot | active |
+| 60 | github-copilot/gemini-2.5-pro | 151.693 | 151.693 | 0 | github-copilot | active |
+| 61 | github-copilot/gpt-4o | 105.922 | 105.922 | 0 | github-copilot | active |
+| 62 | github-copilot/gpt-4.1 | 102.922 | 102.922 | 0 | github-copilot | active |
+| 63 | github-copilot/claude-opus-41 | -10000 | -10000 | 0 | github-copilot | active |
+| 64 | perplexity/sonar | -10000 | -10000 | 0 | perplexity | active |
+| 65 | perplexity/sonar-deep-research | -10000 | -10000 | 0 | perplexity | active |
+| 66 | perplexity/sonar-pro | -10000 | -10000 | 0 | perplexity | active |
+| 67 | perplexity/sonar-reasoning-pro | -10000 | -10000 | 0 | perplexity | active |
+

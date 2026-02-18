@@ -127,7 +127,20 @@ export async function getTmuxPath(): Promise<string | null> {
  * Check if we're running inside tmux
  */
 export function isInsideTmux(): boolean {
-  return !!process.env.TMUX;
+  // First check the environment variable
+  if (process.env.TMUX) {
+    return true;
+  }
+
+  // Fallback: check if we can run tmux display-message
+  // This works even when TMUX env var isn't inherited
+  try {
+    const { execSync } = require('child_process');
+    execSync('tmux display-message -p "#S" 2>/dev/null', { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**

@@ -8,6 +8,10 @@ function getOpenCodePaths(): string[] {
   return [
     // PATH (try this first)
     'opencode',
+    // Homebrew (macOS & Linux) - prioritize CLI over app bundle
+    '/opt/homebrew/bin/opencode',
+    '/home/linuxbrew/.linuxbrew/bin/opencode',
+    `${home}/homebrew/bin/opencode`,
     // User local installations (Linux & macOS)
     `${home}/.local/bin/opencode`,
     `${home}/.opencode/bin/opencode`,
@@ -17,13 +21,6 @@ function getOpenCodePaths(): string[] {
     '/opt/opencode/bin/opencode',
     '/usr/bin/opencode',
     '/bin/opencode',
-    // macOS specific
-    '/Applications/OpenCode.app/Contents/MacOS/opencode',
-    `${home}/Applications/OpenCode.app/Contents/MacOS/opencode`,
-    // Homebrew (macOS & Linux)
-    '/opt/homebrew/bin/opencode',
-    '/home/linuxbrew/.linuxbrew/bin/opencode',
-    `${home}/homebrew/bin/opencode`,
     // macOS user Library
     `${home}/Library/Application Support/opencode/bin/opencode`,
     // Snap (Linux)
@@ -45,6 +42,9 @@ function getOpenCodePaths(): string[] {
     `${home}/.yarn/bin/opencode`,
     // PNPM
     `${home}/.pnpm-global/bin/opencode`,
+    // macOS app bundle (last resort - may launch GUI)
+    '/Applications/OpenCode.app/Contents/MacOS/opencode',
+    `${home}/Applications/OpenCode.app/Contents/MacOS/opencode`,
   ];
 }
 
