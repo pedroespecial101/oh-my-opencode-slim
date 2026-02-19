@@ -28,8 +28,6 @@ interface CliArgs {
   output?: string;
   format: 'md' | 'csv';
   help: boolean;
-  providers?: string[];
-  all: boolean;
 }
 
 function parseArgs(): CliArgs {
@@ -37,14 +35,11 @@ function parseArgs(): CliArgs {
   const result: CliArgs = {
     format: 'md',
     help: false,
-    all: false,
   };
 
   for (const arg of args) {
     if (arg === '--help' || arg === '-h') {
       result.help = true;
-    } else if (arg === '--all') {
-      result.all = true;
     } else if (arg.startsWith('--role=')) {
       const role = arg.slice(7) as AgentRole;
       if (!AGENT_ROLES.includes(role)) {
@@ -63,8 +58,6 @@ function parseArgs(): CliArgs {
         process.exit(2);
       }
       result.format = format;
-    } else if (arg.startsWith('--providers=')) {
-      result.providers = arg.slice(12).split(',').map((p) => p.trim());
     }
   }
 
@@ -80,27 +73,18 @@ Usage: bun run src/cli/score-models.ts [options]
 Options:
   --role=<role>           Score specific role only (default: all roles)
                           Valid roles: ${AGENT_ROLES.join(', ')}
-  --all                   Show all models from catalog (default: active only)
-  --providers=<list>      Filter by specific providers (comma-separated)
-                          Example: --providers=opencode,github-copilot
   --output=<file>         Write to file (default: stdout)
   --format=<format>       Output format: md or csv (default: md)
   --help                  Show this help message
 
-Provider Filtering:
-  By default, only models from ACTIVE providers are shown (auto-detected).
-  Use --all to see all models from the OpenCode catalog.
-  Use --providers to specify exact providers to include.
+Note: Only models with status='active' are included in scoring.
 
 Examples:
-  # Score active providers only (default)
+  # Score all roles for active models
+  bun run src/cli/score-models.ts
+
+  # Score specific role
   bun run src/cli/score-models.ts --role=oracle
-
-  # Score ALL models from catalog
-  bun run src/cli/score-models.ts --role=oracle --all
-
-  # Score specific providers
-  bun run src/cli/score-models.ts --providers=opencode,github-copilot
 
   # Save to CSV file
   bun run src/cli/score-models.ts --format=csv --output=scores.csv
@@ -137,46 +121,19 @@ async function main(): Promise<void> {
 
   console.error(`Found ${models.length} models`);
 
-  // Determine which providers to use
-  let providersToUse: string[] | undefined;
-
-  if (args.all) {
-    // --all flag: show all models
-    console.error('Showing all models from catalog');
-  } else if (args.providers && args.providers.length > 0) {
-    // --providers flag: use specified providers
-    providersToUse = args.providers;
-  } else {
-    // Default: use common active providers
-    // Note: Auto-detection via 'opencode models' doesn't work reliably in spawned processes
-    // Users can override with --providers or --all
-    providersToUse = ['opencode', 'github-copilot', 'kiro', 'perplexity'];
-    console.error(
-      `Using default providers: ${providersToUse.join(', ')}`,
-    );
-    console.error(
-      'Use --providers=x,y,z to specify different providers, or --all for everything',
-    );
-  }
-
-  // Filter by providers if needed
-  if (providersToUse && providersToUse.length > 0) {
-    const providerSet = new Set(providersToUse);
-    models = models.filter((m) => providerSet.has(m.providerID));
-    console.error(
-      `Filtered to ${models.length} models from providers: ${providersToUse.join(', ')}`,
-    );
-  }
+  // Filter to active models only
+  models = models.filter((m) => m.status === 'active' || !m.status);
+  console.error(`Filtered to ${models.length} active models`);
 
   if (models.length === 0) {
-    console.error('No models found after filtering');
+    console.error('No active models found');
     process.exit(1);
   }
 
   console.error('Fetching external signals...');
   const aaKey = getEnv('ARTIFICIAL_ANALYSIS_API_KEY');
   const orKey = getEnv('OPENROUTER_API_KEY');
-  
+
   if (!aaKey && !orKey) {
     console.error(
       'Warning: No API keys found. External signals will not be available.',
@@ -185,17 +142,38 @@ async function main(): Promise<void> {
       'Set ARTIFICIAL_ANALYSIS_API_KEY and/or OPENROUTER_API_KEY environment variables.',
     );
   }
-  
+
   const { signals, warnings } = await fetchExternalModelSignals({
     artificialAnalysisApiKey: aaKey,
     openRouterApiKey: orKey,
   });
 
-  // Debug: Log signal information
+  // Check if external signals are actually available
   const signalKeys = Object.keys(signals);
   console.error(`External signals fetched: ${signalKeys.length} entries`);
-  if (signalKeys.length > 0) {
-    console.error(`Sample signal keys: ${signalKeys.slice(0, 5).join(', ')}`);
+
+  // Count signals by source to detect if APIs are working
+  let aaCount = 0;
+  let orCount = 0;
+  for (const signal of Object.values(signals)) {
+    if (signal.qualityScore !== undefined || signal.codingScore !== undefined) {
+      aaCount++;
+    }
+    if (
+      signal.inputPricePer1M !== undefined ||
+      signal.outputPricePer1M !== undefined
+    ) {
+      orCount++;
+    }
+  }
+
+  console.error(`AA entries loaded: ${aaCount}`);
+  console.error(`OR entries loaded: ${orCount}`);
+
+  if (aaCount === 0 && orCount === 0 && signalKeys.length === 0) {
+    console.error(
+      'Warning: No external signals loaded. External boosts will be 0 for all models.',
+    );
   }
 
   if (warnings.length > 0) {
@@ -211,12 +189,6 @@ async function main(): Promise<void> {
   for (const role of rolesToScore) {
     const scores = rankModelsV1WithBreakdown(models, role, signals);
     results.push({ role, scores });
-    
-    // Debug: Check if any models have non-zero external boosts
-    const withBoost = scores.filter((s) => s.externalSignalBoost !== 0);
-    console.error(
-      `${role}: ${withBoost.length}/${scores.length} models have external boost`,
-    );
   }
 
   const output =
@@ -232,13 +204,6 @@ async function main(): Promise<void> {
   }
 }
 
-// Format results as markdown table
-// External Boost comes from rankModelsV1WithBreakdown's externalSignalBoost field,
-// which is calculated by getExternalSignalBoost() based on:
-// - Artificial Analysis quality and coding scores
-// - OpenRouter pricing information
-// - Model latency data
-// If external signals are unavailable or model keys don't match, boost will be 0.
 function formatMarkdown(
   results: ScoreResult[],
   models: DiscoveredModel[],
@@ -274,13 +239,6 @@ function formatMarkdown(
   return lines.join('\n');
 }
 
-// Format results as CSV
-// External Boost comes from rankModelsV1WithBreakdown's externalSignalBoost field,
-// which is calculated by getExternalSignalBoost() based on:
-// - Artificial Analysis quality and coding scores
-// - OpenRouter pricing information
-// - Model latency data
-// If external signals are unavailable or model keys don't match, boost will be 0.
 function formatCsv(results: ScoreResult[], models: DiscoveredModel[]): string {
   const lines: string[] = [];
   lines.push(
