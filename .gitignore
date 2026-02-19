@@ -68,3 +68,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# V2 Scoring Visualizer output
+scoring-v2-dump.json

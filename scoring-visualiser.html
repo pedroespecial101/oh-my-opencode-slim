@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V2 Scoring Visualiser</title>
+  <style>
+    :root {
+      --color-primary: #2196F3;
+      --color-positive: #4CAF50;
+      --color-negative: #f44336;
+      --color-warning: #ff9800;
+      --color-bg: #ffffff;
+      --color-bg-alt: #f5f5f5;
+      --color-border: #e0e0e0;
+      --color-text: #333333;
+      --color-text-muted: #757575;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+                     Roboto, Oxygen, Ubuntu, sans-serif;
+      --font-size-sm: 12px;
+      --font-size-base: 14px;
+      --font-size-lg: 16px;
+      --font-size-xl: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+      font-size: var(--font-size-base);
+      color: var(--color-text);
+      background: var(--color-bg);
+    }
+
+    #global-header {
+      position: sticky;
+      top: 0;
+      background: var(--color-bg);
+      border-bottom: 2px solid var(--color-border);
+      padding: var(--spacing-md);
+      z-index: 100;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header-title {
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+
+    .header-meta {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-muted);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: var(--spacing-md);
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .filter-label {
+      font-weight: 600;
+      margin-right: var(--spacing-sm);
+    }
+
+    .button-group {
+      display: flex;
+      gap: var(--spacing-xs);
+    }
+
+    .filter-button {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: 1px solid var(--color-border);
+      background: var(--color-bg);
+      color: var(--color-text);
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: var(--font-size-sm);
+      transition: all 0.2s;
+    }
+
+    .filter-button:hover {
+      background: var(--color-bg-alt);
+    }
+
+    .filter-button.active {
+      background: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+    }
+
+    #tab-nav {
+      background: var(--color-bg-alt);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--spacing-sm) var(--spacing-md);
+      display: flex;
+      gap: var(--spacing-xs);
+    }
+
+    .tab-button {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border: none;
+      background: transparent;
+      color: var(--color-text);
+      cursor: pointer;
+      border-radius: 4px 4px 0 0;
+      font-size: var(--font-size-base);
+      transition: all 0.2s;
+    }
+
+    .tab-button:hover {
+      background: rgba(33, 150, 243, 0.1);
+    }
+
+    .tab-button.active {
+      background: var(--color-bg);
+      font-weight: 600;
+      color: var(--color-primary);
+    }
+
+    main {
+      padding: var(--spacing-lg);
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--font-size-sm);
+      margin-top: var(--spacing-md);
+    }
+
+    th, td {
+      padding: var(--spacing-sm);
+      text-align: left;
+      border: 1px solid var(--color-border);
+    }
+
+    th {
+      background: var(--color-bg-alt);
+      font-weight: 600;
+      position: sticky;
+      top: 120px;
+      z-index: 10;
+    }
+
+    .missing-signal {
+      background: var(--color-warning) !important;
+      color: var(--color-text);
+    }
+
+    .highlighted-column {
+      background: rgba(33, 150, 243, 0.1);
+    }
+
+    .bold-column {
+      font-weight: 600;
+    }
+
+    .expandable-row {
+      cursor: pointer;
+    }
+
+    .expandable-row:hover {
+      background: var(--color-bg-alt);
+    }
+
+    .expanded-content {
+      padding: var(--spacing-md);
+      background: var(--color-bg-alt);
+    }
+
+    .feature-comparison {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .feature-name {
+      width: 150px;
+      font-weight: 600;
+    }
+
+    .bar-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xs);
+    }
+
+    .bar {
+      height: 20px;
+      display: flex;
+      align-items: center;
+      padding: 0 var(--spacing-sm);
+      color: white;
+      font-size: var(--font-size-sm);
+      border-radius: 2px;
+    }
+
+    .model-bar {
+      background: var(--color-primary);
+    }
+
+    .top-bar {
+      background: var(--color-positive);
+    }
+
+    .error {
+      padding: var(--spacing-xl);
+      text-align: center;
+      color: var(--color-negative);
+    }
+
+    .error h1 {
+      margin-top: 0;
+    }
+
+    .error code {
+      background: var(--color-bg-alt);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .section {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .section h2 {
+      margin-top: 0;
+      color: var(--color-primary);
+    }
+
+    .section h3 {
+      margin-top: var(--spacing-lg);
+      color: var(--color-text);
+    }
+
+    .section pre {
+      background: var(--color-bg-alt);
+      padding: var(--spacing-md);
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: var(--font-size-sm);
+    }
+  </style>
+</head>
+<body>
+  <header id="global-header">
+    <h1 class="header-title">V2 Scoring Visualiser</h1>
+    <div class="header-meta" id="header-meta">Loading...</div>
+    <div class="filter-group">
+      <div>
+        <span class="filter-label">Agent:</span>
+        <div class="button-group" id="agent-filter"></div>
+      </div>
+
+      <div>
+        <label class="checkbox-label">
+          <input type="checkbox" id="hide-no-signals">
+          Hide models with missing external signals
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <nav id="tab-nav">
+    <button class="tab-button active" data-tab="weights">
+      Weights Matrix
+    </button>
+    <button class="tab-button" data-tab="raw">Raw Data</button>
+    <button class="tab-button" data-tab="normalized">
+      Normalized Features
+    </button>
+    <button class="tab-button" data-tab="scores">V2 Scores</button>
+    <button class="tab-button" data-tab="hardcodes">Hardcodes</button>
+  </nav>
+
+  <main id="content">
+    <div id="tab-weights" class="tab-content active"></div>
+    <div id="tab-raw" class="tab-content"></div>
+    <div id="tab-normalized" class="tab-content"></div>
+    <div id="tab-scores" class="tab-content"></div>
+    <div id="tab-hardcodes" class="tab-content"></div>
+  </main>
+
+  <script>
+    // Global state
+    const state = {
+      data: null,
+      activeTab: 'weights',
+      agentFilter: 'all',
+      hideNoSignals: false,
+      expandedRows: new Set()
+    };
+
+    // Feature descriptions
+    const featureDescriptions = {
+      status: 'Model maturity (active=1, beta=0.4, alpha=-0.25)',
+      context: 'Context window normalized to 100K tokens',
+      output: 'Output limit normalized to 30K tokens',
+      versionBonus: 'Hardcoded adjustments for specific models',
+      reasoning: 'Extended reasoning capability (1 if true, 0 if false)',
+      toolcall: 'Function calling capability (1 if true, 0 if false)',
+      attachment: 'File attachment support (1 if true, 0 if false)',
+      quality: 'External quality score normalized 0-1',
+      coding: 'External coding score normalized 0-1',
+      latencyPenalty: 'Time to first token penalty (negative)',
+      pricePenalty: 'Blended pricing penalty (negative)'
+    };
+
+    // Normalization formulas for tooltips
+    const normalizationFormulas = {
+      status: 'active=1, beta=0.4, alpha=-0.25, other=-1',
+      context: 'min(contextLimit, 1M) / 100K',
+      output: 'designer: <64K ? -1 : 0; others: min(outputLimit, 300K) / 30K',
+      versionBonus: 'Hardcoded per model/agent (see Tab 5)',
+      reasoning: 'boolean ? 1 : 0',
+      toolcall: 'boolean ? 1 : 0',
+      attachment: 'boolean ? 1 : 0',
+      quality: 'qualityScore / 100',
+      coding: 'codingScore / 100',
+      latencyPenalty: 'min(latency, 20) × (explorer ? 1.4 : 1)',
+      pricePenalty: 'min(blendedPrice, 50) / 10'
+    };
+
+    // Utility functions
+    function getHeatmapColor(value, isNegative) {
+      const absValue = Math.abs(value);
+      const maxWeight = 28;
+      const intensity = Math.min(absValue / maxWeight, 1);
+      
+      if (isNegative) {
+        const component = Math.round(200 - intensity * 150);
+        return `rgb(255, ${component}, ${component})`;
+      } else {
+        const component = Math.round(200 - intensity * 150);
+        return `rgb(${component}, ${component}, 255)`;
+      }
+    }
+
+    function getNormalizedHeatmap(value, columnValues) {
+      const max = Math.max(...columnValues.map(Math.abs));
+      if (max === 0) return 'rgb(200, 200, 200)';
+      const intensity = Math.abs(value) / max;
+      
+      if (value < 0) {
+        const component = Math.round(200 - intensity * 150);
+        return `rgb(255, ${component}, ${component})`;
+      } else {
+        const component = Math.round(200 - intensity * 150);
+        return `rgb(${component}, ${component}, 255)`;
+      }
+    }
+
+    function createBarChart(score, maxScore) {
+      const width = 100;
+      const height = 16;
+      const barWidth = (score / maxScore) * width;
+      
+      return `
+        <svg width="${width}" height="${height}" 
+             style="vertical-align: middle;">
+          <rect x="0" y="0" width="${width}" height="${height}" 
+                fill="#e0e0e0" rx="2"/>
+          <rect x="0" y="0" width="${barWidth}" height="${height}" 
+                fill="#4CAF50" rx="2"/>
+          <text x="${width/2}" y="${height/2 + 4}" 
+                text-anchor="middle" font-size="11" fill="#333">
+            ${score.toFixed(1)}
+          </text>
+        </svg>
+      `;
+    }
+
+    function filterModels(models) {
+      if (!state.hideNoSignals) return models;
+      return models.filter(m => m.externalSignals.present);
+    }
+
+    function getRelevantColumns(agent, weights) {
+      if (agent === 'all') return [];
+      const agentWeights = weights[agent];
+      const sorted = Object.entries(agentWeights)
+        .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+        .slice(0, 3)
+        .map(([feature]) => feature);
+      
+      const columnMap = {
+        context: 'Context (K)',
+        output: 'Output (K)',
+        reasoning: 'Reasoning',
+        toolcall: 'Toolcall',
+        attachment: 'Attachment',
+        quality: 'Quality',
+        coding: 'Coding',
+        latencyPenalty: 'Latency (s)',
+        pricePenalty: 'Input $/1M'
+      };
+      
+      return sorted.map(f => columnMap[f]).filter(Boolean);
+    }
+
+    // Render functions
+    function renderWeightsTab() {
+      const { weights, agentTypes } = state.data;
+      const baseWeights = {
+        status: 22, context: 6, output: 6, versionBonus: 8,
+        reasoning: 10, toolcall: 16, attachment: 2,
+        quality: 14, coding: 18, latencyPenalty: -3, pricePenalty: -2
+      };
+      
+      let html = '<table><thead><tr>';
+      html += '<th>Feature</th><th>BASE</th>';
+      for (const agent of agentTypes) {
+        const isBold = state.agentFilter !== 'all' && 
+                       state.agentFilter === agent;
+        html += `<th class="${isBold ? 'bold-column' : ''}">${agent}</th>`;
+      }
+      html += '</tr></thead><tbody>';
+      
+      for (const [feature, desc] of Object.entries(featureDescriptions)) {
+        html += '<tr>';
+        html += `<td title="${desc}">${feature}</td>`;
+        const baseValue = baseWeights[feature];
+        const isNegative = baseValue < 0;
+        const color = getHeatmapColor(baseValue, isNegative);
+        html += `<td style="background: ${color}">${baseValue}</td>`;
+        
+        for (const agent of agentTypes) {
+          const agentValue = weights[agent][feature];
+          const isDifferent = baseValue !== agentValue;
+          const agentNegative = agentValue < 0;
+          const agentColor = getHeatmapColor(agentValue, agentNegative);
+          const isBold = state.agentFilter !== 'all' && 
+                         state.agentFilter === agent;
+          const style = `background: ${agentColor}; 
+                         ${isDifferent ? 'font-weight: 600;' : ''}`;
+          html += `<td class="${isBold ? 'bold-column' : ''}" 
+                       style="${style}">${agentValue}</td>`;
+        }
+        html += '</tr>';
+      }
+      
+      html += '</tbody></table>';
+      document.getElementById('tab-weights').innerHTML = html;
+    }
+
+    function renderRawTab() {
+      const models = filterModels(state.data.models);
+      const relevantCols = getRelevantColumns(
+        state.agentFilter, 
+        state.data.weights
+      );
+      
+      let html = '<table><thead><tr>';
+      const columns = [
+        'Model ID', 'Provider', 'Status', 'Context (K)', 'Output (K)',
+        'Reasoning', 'Toolcall', 'Attachment', 'Latency (s)',
+        'Quality', 'Coding', 'Input $/1M', 'Output $/1M'
+      ];
+      for (const col of columns) {
+        const isHighlighted = relevantCols.includes(col);
+        html += `<th class="${isHighlighted ? 'highlighted-column' : ''}">
+                   ${col}</th>`;
+      }
+      html += '</tr></thead><tbody>';
+      
+      for (const model of models) {
+        html += '<tr>';
+        html += `<td>${model.id}</td>`;
+        html += `<td>${model.providerID}</td>`;
+        html += `<td>${model.status}</td>`;
+        html += `<td>${(model.rawData.contextLimit / 1000).toFixed(0)}</td>`;
+        html += `<td>${(model.rawData.outputLimit / 1000).toFixed(0)}</td>`;
+        html += `<td>${model.rawData.reasoning ? '✓' : '✗'}</td>`;
+        html += `<td>${model.rawData.toolcall ? '✓' : '✗'}</td>`;
+        html += `<td>${model.rawData.attachment ? '✓' : '✗'}</td>`;
+        
+        const latency = model.externalSignals.latencySeconds;
+        html += `<td class="${latency === null ? 'missing-signal' : ''}">
+                   ${latency !== null ? latency.toFixed(2) : '—'}</td>`;
+        
+        const quality = model.externalSignals.qualityScore;
+        html += `<td class="${quality === null ? 'missing-signal' : ''}">
+                   ${quality !== null ? quality.toFixed(1) : '—'}</td>`;
+        
+        const coding = model.externalSignals.codingScore;
+        html += `<td class="${coding === null ? 'missing-signal' : ''}">
+                   ${coding !== null ? coding.toFixed(1) : '—'}</td>`;
+        
+        const inputPrice = model.externalSignals.inputPricePer1M;
+        html += `<td class="${inputPrice === null ? 'missing-signal' : ''}">
+                   ${inputPrice !== null ? inputPrice.toFixed(2) : '—'}</td>`;
+        
+        const outputPrice = model.externalSignals.outputPricePer1M;
+        html += `<td class="${outputPrice === null ? 'missing-signal' : ''}">
+                   ${outputPrice !== null ? outputPrice.toFixed(2) : '—'}</td>`;
+        
+        html += '</tr>';
+      }
+      
+      html += '</tbody></table>';
+      document.getElementById('tab-raw').innerHTML = html;
+    }
+
+    function renderNormalizedTab() {
+      const models = filterModels(state.data.models);
+      const agent = state.agentFilter === 'all' ? 
+                    'orchestrator' : state.agentFilter;
+      const features = Object.keys(featureDescriptions);
+      
+      // Calculate column values for heatmap
+      const columnValues = {};
+      for (const feature of features) {
+        columnValues[feature] = models.map(
+          m => m.byAgent[agent].features[feature]
+        );
+      }
+      
+      let html = '<table><thead><tr>';
+      html += '<th>Model</th>';
+      for (const feature of features) {
+        html += `<th title="${normalizationFormulas[feature]}">${feature}</th>`;
+      }
+      html += '</tr></thead><tbody>';
+      
+      for (const model of models) {
+        html += '<tr>';
+        html += `<td>${model.id}</td>`;
+        
+        for (const feature of features) {
+          const value = model.byAgent[agent].features[feature];
+          const color = getNormalizedHeatmap(value, columnValues[feature]);
+          html += `<td style="background: ${color}">${value.toFixed(3)}</td>`;
+        }
+        
+        html += '</tr>';
+      }
+      
+      html += '</tbody></table>';
+      document.getElementById('tab-normalized').innerHTML = html;
+    }
+
+    function renderScoresTab() {
+      const agent = state.agentFilter;
+      
+      if (agent === 'all') {
+        document.getElementById('tab-scores').innerHTML = `
+          <div style="padding: 40px; text-align: center; color: #757575;">
+            <h2>Please select an agent to view scores</h2>
+            <p>Use the agent filter above to select a specific agent type.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      const models = filterModels(state.data.models);
+      const sorted = [...models].sort((a, b) => 
+        b.byAgent[agent].totalScore - a.byAgent[agent].totalScore
+      );
+      
+      const maxScore = sorted[0]?.byAgent[agent].totalScore || 1;
+      const features = Object.keys(featureDescriptions);
+      
+      let html = '<table><thead><tr>';
+      html += '<th>Rank</th><th>Model</th><th>Provider</th>';
+      for (const feature of features) {
+        html += `<th>${feature}</th>`;
+      }
+      html += '<th>Total Score</th>';
+      html += '</tr></thead><tbody>';
+      
+      sorted.forEach((model, index) => {
+        const rowId = `score-row-${index}`;
+        html += `<tr class="expandable-row" data-row-id="${rowId}">`;
+        html += `<td>${index + 1}</td>`;
+        html += `<td>${model.id}</td>`;
+        html += `<td>${model.providerID}</td>`;
+        
+        for (const feature of features) {
+          const value = model.byAgent[agent].weighted[feature];
+          html += `<td>${value.toFixed(2)}</td>`;
+        }
+        
+        const score = model.byAgent[agent].totalScore;
+        html += `<td>${createBarChart(score, maxScore)}</td>`;
+        html += '</tr>';
+        
+        if (state.expandedRows.has(rowId)) {
+          html += `<tr><td colspan="${features.length + 4}">`;
+          html += createComparisonChart(model, sorted[0], agent, features);
+          html += '</td></tr>';
+        }
+      });
+      
+      html += '</tbody></table>';
+      document.getElementById('tab-scores').innerHTML = html;
+      
+      // Add click handlers
+      document.querySelectorAll('.expandable-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const rowId = row.dataset.rowId;
+          if (state.expandedRows.has(rowId)) {
+            state.expandedRows.delete(rowId);
+          } else {
+            state.expandedRows.add(rowId);
+          }
+          renderScoresTab();
+        });
+      });
+    }
+
+    function createComparisonChart(model, topModel, agent, features) {
+      let html = '<div class="expanded-content">';
+      html += '<h3>Comparison vs #1 Ranked Model</h3>';
+      
+      for (const feature of features) {
+        const modelValue = model.byAgent[agent].weighted[feature];
+        const topValue = topModel.byAgent[agent].weighted[feature];
+        const maxValue = Math.max(Math.abs(modelValue), Math.abs(topValue));
+        
+        if (maxValue === 0) continue;
+        
+        const modelWidth = (Math.abs(modelValue) / maxValue * 100).toFixed(1);
+        const topWidth = (Math.abs(topValue) / maxValue * 100).toFixed(1);
+        
+        html += '<div class="feature-comparison">';
+        html += `<span class="feature-name">${feature}</span>`;
+        html += '<div class="bar-container">';
+        html += `<div class="bar model-bar" style="width: ${modelWidth}%">
+                   This: ${modelValue.toFixed(2)}</div>`;
+        html += `<div class="bar top-bar" style="width: ${topWidth}%">
+                   #1: ${topValue.toFixed(2)}</div>`;
+        html += '</div></div>';
+      }
+      
+      html += '</div>';
+      return html;
+    }
+
+    function renderHardcodesTab() {
+      const html = `
+        <div class="section">
+          <h2>Section A: V2 Feature Hardcodes</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Pattern</th>
+                <th>Provider</th>
+                <th>Affected Agents</th>
+                <th>Effect</th>
+                <th>Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/qwen3/</code></td>
+                <td>chutes</td>
+                <td>All</td>
+                <td>-6 to -12 (varies)</td>
+                <td>Model name change breaks match</td>
+              </tr>
+              <tr>
+                <td><code>/kimi-k2\\.5|k2\\.5/</code></td>
+                <td>Any</td>
+                <td>All</td>
+                <td>+1 to +3 (varies)</td>
+                <td>Underscore variant <code>kimi_k2_5</code> not matched</td>
+              </tr>
+              <tr>
+                <td><code>/minimax[-_ ]?m2\\.1/</code></td>
+                <td>chutes</td>
+                <td>All</td>
+                <td>+1 to +4 (varies)</td>
+                <td>Dot variant <code>minimax.m2.1</code> not matched</td>
+              </tr>
+              <tr>
+                <td><code>agent === 'explorer'</code></td>
+                <td>N/A</td>
+                <td>Explorer</td>
+                <td>latency × 1.4</td>
+                <td>Hardcoded multiplier</td>
+              </tr>
+              <tr>
+                <td><code>outputLimit &lt; 64000</code></td>
+                <td>N/A</td>
+                <td>Designer</td>
+                <td>-1 penalty</td>
+                <td>Arbitrary threshold</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section">
+          <h3>Section B: Known Pattern-Match Risks</h3>
+          <pre>Model Naming Variations That Break Matching:
+- qwen3 vs qwen-3 vs qwen_3
+- kimi-k2.5 vs kimi_k2_5 vs kimi-k2-5
+- minimax-m2.1 vs minimax_m2.1 vs minimax.m2.1
+- Case sensitivity: QWEN3 vs qwen3
+- Whitespace: "kimi k2.5" vs "kimi-k2.5"</pre>
+        </div>
+
+        <div class="section">
+          <h3>Section C: V2 Scoring Scope Notes</h3>
+          <p>This visualizer shows ONLY V2 scoring output - the objective 
+          evaluation of model quality for each agent role.</p>
+          
+          <p>The actual installation pipeline applies additional post-scoring 
+          policy logic that can override these scores:</p>
+          <ul>
+            <li>Provider diversity balancing</li>
+            <li>Subscription availability checks</li>
+            <li>Manual user model pins</li>
+            <li>Fallback chain construction</li>
+          </ul>
+          
+          <p>This policy logic is intentionally excluded because this tool's 
+          purpose is evaluating model quality, not installation policy.</p>
+          
+          <p>For the complete model selection logic, see:</p>
+          <ul>
+            <li><code>src/cli/dynamic-model-selection.ts</code> (policy engine)</li>
+            <li><code>src/cli/precedence-resolver.ts</code> (resolution layers)</li>
+          </ul>
+        </div>
+      `;
+      
+      document.getElementById('tab-hardcodes').innerHTML = html;
+    }
+
+    // Main render function
+    function render() {
+      if (!state.data) return;
+      
+      // Render active tab
+      switch (state.activeTab) {
+        case 'weights':
+          renderWeightsTab();
+          break;
+        case 'raw':
+          renderRawTab();
+          break;
+        case 'normalized':
+          renderNormalizedTab();
+          break;
+        case 'scores':
+          renderScoresTab();
+          break;
+        case 'hardcodes':
+          renderHardcodesTab();
+          break;
+      }
+    }
+
+    // Initialize
+    async function init() {
+      try {
+        const response = await fetch('./scoring-v2-dump.json');
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        state.data = await response.json();
+        
+        // Validate data structure
+        if (!state.data.models || !state.data.weights) {
+          throw new Error('Invalid JSON structure: missing models or weights');
+        }
+        
+        // Update header meta
+        const date = new Date(state.data.generatedAt);
+        document.getElementById('header-meta').textContent = 
+          `Generated: ${date.toLocaleString()} | ` +
+          `Models: ${state.data.models.length} | ` +
+          `Agents: ${state.data.agentTypes.length}`;
+        
+        // Setup agent filter buttons
+        const agentFilter = document.getElementById('agent-filter');
+        let html = '<button class="filter-button active" data-agent="all">All</button>';
+        for (const agent of state.data.agentTypes) {
+          html += `<button class="filter-button" data-agent="${agent}">
+                     ${agent}</button>`;
+        }
+        agentFilter.innerHTML = html;
+        
+        // Add agent filter click handlers
+        agentFilter.querySelectorAll('.filter-button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.agentFilter = btn.dataset.agent;
+            agentFilter.querySelectorAll('.filter-button').forEach(b => 
+              b.classList.remove('active')
+            );
+            btn.classList.add('active');
+            render();
+          });
+        });
+        
+        // Setup signal filter checkbox
+        document.getElementById('hide-no-signals').addEventListener('change', (e) => {
+          state.hideNoSignals = e.target.checked;
+          render();
+        });
+        
+        // Setup tab navigation
+        document.querySelectorAll('.tab-button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            state.activeTab = btn.dataset.tab;
+            document.querySelectorAll('.tab-button').forEach(b => 
+              b.classList.remove('active')
+            );
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => 
+              c.classList.remove('active')
+            );
+            document.getElementById(`tab-${state.activeTab}`).classList.add('active');
+            render();
+          });
+        });
+        
+        // Initial render
+        render();
+        
+      } catch (error) {
+        document.body.innerHTML = `
+          <div class="error">
+            <h1>Failed to load scoring data</h1>
+            <p>Make sure you've run: 
+               <code>bun run src/cli/scoring-v2/dump-v2-scores.ts</code>
+            </p>
+            <p>Error: ${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
